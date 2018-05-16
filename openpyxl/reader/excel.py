@@ -190,6 +190,7 @@ def load_workbook(filename, read_only=False, keep_vba=KEEP_VBA,
     wb.template = wb_part.ContentType in (XLTX, XLTM)
     parser.parse()
     wb._sheets = []
+    pivot_caches = None
 
     if read_only and guess_types:
         warnings.warn('Data types are not guessed when using iterator reader')
@@ -224,7 +225,6 @@ def load_workbook(filename, read_only=False, keep_vba=KEEP_VBA,
         wb.loaded_theme = archive.read(ARC_THEME)
 
     apply_stylesheet(archive, wb) # bind styles to workbook
-    pivot_caches = parser.pivot_caches
 
     # get worksheets
     for sheet, rel in parser.find_sheets():
@@ -286,6 +286,8 @@ def load_workbook(filename, read_only=False, keep_vba=KEEP_VBA,
                     src = archive.read(pivot_path)
                     tree = fromstring(src)
                     pivot = TableDefinition.from_tree(tree)
+                    if pivot_caches is None:
+                        pivot_caches = parser.pivot_caches
                     pivot.cache = pivot_caches[pivot.cacheId]
                     ws.add_pivot(pivot)
 
