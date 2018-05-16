@@ -142,7 +142,7 @@ def _find_workbook_part(package):
 
 
 def load_workbook(filename, read_only=False, keep_vba=KEEP_VBA,
-                  data_only=False, guess_types=False, keep_links=True):
+                  data_only=False, guess_types=False, keep_links=True, load_sheets_only=None):
     """Open the given filename and return the workbook
 
     :param filename: the path to open or a file-like object
@@ -162,6 +162,9 @@ def load_workbook(filename, read_only=False, keep_vba=KEEP_VBA,
 
     :param keep_links: whether links to external workbooks should be preserved. The default is True
     :type keep_links: bool
+
+    :param load_sheets_only: List of sheet names to load. The default is None to load all sheets.
+    :type load_sheets_only: list
 
     :rtype: :class:`openpyxl.workbook.Workbook`
 
@@ -226,6 +229,10 @@ def load_workbook(filename, read_only=False, keep_vba=KEEP_VBA,
     # get worksheets
     for sheet, rel in parser.find_sheets():
         sheet_name = sheet.name
+
+        if load_sheets_only is not None and sheet_name not in load_sheets_only:
+            continue
+
         worksheet_path = rel.target
         rels_path = get_rels_path(worksheet_path)
         rels = []
